@@ -14,14 +14,14 @@ module Regex.SimpleParser
   , applyRegex
   ) where
 
-import Parsers.Simple
-import Regex.Types
+import           Parsers.Simple
+import           Regex.Types
 
-import Control.Applicative
-import Control.Monad       (void)
-import Data.Char           (isAlphaNum)
-import Data.Maybe          (isJust)
-
+import           Control.Applicative
+import           Control.Monad       (void)
+import           Data.Char           (isAlphaNum)
+import           Data.Functor        (($>))
+import           Data.Maybe          (isJust)
 --------------------------------------------------------------------------------
 
 -- | Try to parse a regular expression.
@@ -57,7 +57,7 @@ parseQuantifiedAtom = do
 
 -- | Parse an individual atom.
 parseAtom :: Parser Atom
-parseAtom = oneOf [ char '.' *> pure AnyChar
+parseAtom = oneOf [ char '.'      $> AnyChar
                   , SpecificChar <$> parseCharacter
                   , BExpression  <$> parseBracketExpression
                   , SubPattern   <$> parseSubPattern
@@ -68,9 +68,9 @@ parseAtom = oneOf [ char '.' *> pure AnyChar
         cls = char ')' <?> "Invalid sub-pattern"
 
 parseQuantifier :: Parser (Atom -> QuantifiedAtom)
-parseQuantifier = oneOf [ char '?' *> pure OptionalAtom
-                        , char '+' *> pure AtLeastOne
-                        , char '*' *> pure Multiple
+parseQuantifier = oneOf [ char '?' $> OptionalAtom
+                        , char '+' $> AtLeastOne
+                        , char '*' $> Multiple
                         ,             pure PlainAtom -- Needs to be last.
                         ]
 
